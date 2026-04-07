@@ -2,6 +2,22 @@
 
 Thank you for your interest in contributing to the Kyromesh Python SDK! This guide will help you get started.
 
+## ⚠️ Contribution workflow: Fork + PR only
+
+This repository uses a **fork + pull request** workflow:
+
+- Do **not** push directly to `main`
+- **Fork** the repository
+- Create a feature or fix branch in **your fork**
+- Open a **pull request** to `main` in the upstream repo
+- Wait for review and CI checks before merging
+- Only maintainers create release tags and publish to PyPI
+
+This ensures:
+- Safer, review-driven development
+- Reliable, automated publishing from the upstream repo only
+- No accidental publishes from forks
+
 ## Development Setup
 
 ### Prerequisites
@@ -13,17 +29,19 @@ Thank you for your interest in contributing to the Kyromesh Python SDK! This gui
 ### Local Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/kyromesh/kyromesh-python-sdk.git
+# Clone your fork
+git clone https://github.com/YOUR_USERNAME/kyromesh-python-sdk.git
 cd kyromesh-python-sdk
 
 # Create virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install in development mode
+# Install in development mode (includes dev dependencies)
 pip install -e ".[dev]"
 ```
+
+Replace `YOUR_USERNAME` with your GitHub username.
 
 ## Making Changes
 
@@ -79,19 +97,21 @@ def run_job(
 ### 1. Create a Branch
 
 ```bash
-git checkout -b feature/your-feature-name
+git checkout -b fix/descriptive-name
 ```
 
 Use descriptive branch names:
+
 - `feature/add-batch-support`
 - `fix/handle-timeout-errors`
 - `docs/update-readme`
+- `chore/update-dependencies`
 
 ### 2. Commit Messages
 
 Write clear, descriptive commit messages:
 
-```
+```text
 Add support for custom timeout values
 
 - Allow users to specify timeout per job
@@ -106,13 +126,15 @@ git push origin feature/your-feature-name
 ```
 
 Then create a Pull Request on GitHub with:
+
 - Clear title describing the change
 - Description of what changed and why
-- Reference to any related issues
+- Reference to any related issues (e.g., `Closes #123`)
 
 ### 4. PR Validation
 
 Your PR will automatically:
+
 - ✅ Run linting (Black, Ruff)
 - ✅ Run type checking (MyPy)
 - ✅ Run unit tests
@@ -121,12 +143,12 @@ Your PR will automatically:
 
 All checks must pass before merging.
 
-## What Gets Synced
+## What Happens After Merge
 
-When your PR is merged, changes are automatically synced to the public OSS repository:
-- https://github.com/kyromesh/kyromesh-python-sdk
-
-This happens automatically via GitHub Actions.
+- Merged PRs are part of the `main` branch
+- Releases are created by maintainers via release tags (e.g., `sdk-python-v0.2.0`)
+- PyPI publishing happens **only** from the upstream repo via trusted publishing
+- Forks and external contributors **cannot** publish to PyPI
 
 ## Code Guidelines
 
@@ -160,6 +182,7 @@ Use custom exceptions from `kyromesh.exceptions`:
 ```python
 from kyromesh.exceptions import QuotaExceededError
 
+
 if response.status_code == 429:
     raise QuotaExceededError("Quota exceeded for this month")
 ```
@@ -187,6 +210,7 @@ For complex logic, add property-based tests using Hypothesis:
 ```python
 from hypothesis import given, strategies as st
 
+
 @given(st.integers(min_value=1, max_value=3600))
 def test_timeout_always_positive(timeout):
     """Timeout should always be positive."""
@@ -203,9 +227,9 @@ def test_timeout_always_positive(timeout):
 
 Update documentation for new features:
 
-1. **README.md** — Add usage examples
-2. **Docstrings** — Add to all public APIs
-3. **CONTRIBUTING.md** — Update if adding new guidelines
+1. **README.md** — Add usage examples  
+2. **Docstrings** — Add to all public APIs  
+3. **CONTRIBUTING.md** — Update if adding new guidelines  
 
 ## Reporting Issues
 
@@ -213,11 +237,11 @@ Found a bug? Please report it:
 
 1. Check if the issue already exists
 2. Create a new issue with:
-   - Clear title
-   - Description of the problem
-   - Steps to reproduce
-   - Expected vs actual behavior
-   - Python version and OS
+   - Clear title  
+   - Description of the problem  
+   - Steps to reproduce  
+   - Expected vs actual behavior  
+   - Python version and OS  
 
 ## Questions?
 

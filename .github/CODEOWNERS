@@ -1,0 +1,17 @@
+# Global default owner
+* @KyroMesh
+
+# Python package source
+/kyromesh/ @KyroMesh
+/tests/ @KyroMesh
+
+# Packaging and release metadata
+/pyproject.toml @KyroMesh
+
+# CI/CD and repo governance
+/.github/ @KyroMesh
+/.github/CODEOWNERS @KyroMesh
+
+# Docs
+/README.md @KyroMesh
+/docs/ @KyroMesh

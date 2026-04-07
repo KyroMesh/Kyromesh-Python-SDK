@@ -1,0 +1,59 @@
+name: Publish Python SDK to PyPI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/kyromesh
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build setuptools wheel
+
+      - name: Build distribution packages
+        run: |
+          python -m build
+
+      - name: Verify distribution packages
+        run: |
+          python -m pip install twine
+          twine check dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: dist/*
+          body: |
+            # Kyromesh Python SDK Release
+
+            Install: `pip install kyromesh`
+
+            ## Documentation
+            - [Quick Start](https://docs.kyromesh.com/quickstart)
+            - [Python SDK Reference](https://docs.kyromesh.com/sdk/python)
+            - [REST API Reference](https://docs.kyromesh.com/api)
