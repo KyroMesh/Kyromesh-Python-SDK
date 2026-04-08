@@ -1,0 +1,170 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'kyromesh/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - '.github/workflows/pr-checks.yml'
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black ruff
+
+      - name: Check Black formatting
+        run: black --check kyromesh/ tests/
+        continue-on-error: false
+
+      - name: Run Ruff linter
+        run: ruff check kyromesh/ tests/
+        continue-on-error: false
+
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mypy httpx pydantic
+
+      - name: Run MyPy type checker
+        run: mypy kyromesh/
+        continue-on-error: false
+
+  test:
+    name: Tests & Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run unit tests
+        run: pytest tests/test_client.py -v --tb=short
+        continue-on-error: false
+
+      - name: Run property-based tests
+        run: pytest tests/test_client_pbt.py -v --tb=short
+        continue-on-error: false
+
+      - name: Run all tests with coverage
+        run: pytest tests/ -v --cov=kyromesh --cov-report=xml --cov-report=term-missing
+        continue-on-error: false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  package:
+    name: Package Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build distribution packages
+        run: python -m build
+
+      - name: Verify distribution packages
+        run: twine check dist/*
+        continue-on-error: false
+
+  docs:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydocstyle
+
+      - name: Check docstrings in public APIs
+        run: pydocstyle kyromesh/ --convention=google --match='(?!_).*\.py'
+        continue-on-error: true
+
+  summary:
+    name: PR Checks Summary
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, test, package, docs]
+    if: always()
+    steps:
+      - name: Check job statuses
+        run: |
+          if [ "${{ needs.lint.result }}" = "failure" ]; then
+            echo "❌ Linting failed"
+            exit 1
+          fi
+          if [ "${{ needs.type-check.result }}" = "failure" ]; then
+            echo "❌ Type checking failed"
+            exit 1
+          fi
+          if [ "${{ needs.test.result }}" = "failure" ]; then
+            echo "❌ Tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.package.result }}" = "failure" ]; then
+            echo "❌ Package validation failed"
+            exit 1
+          fi
+          echo "✅ All PR checks passed!"
