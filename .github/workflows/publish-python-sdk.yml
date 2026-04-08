@@ -1,4 +1,4 @@
-name: Publish Python SDK to PyPI
+name: Publish Python SDK to TestPyPI
 
 on:
   push:
@@ -12,8 +12,8 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     environment:
-      name: pypi
-      url: https://pypi.org/p/kyromesh
+      name: testpypi
+      url: https://test.pypi.org/p/kyromesh
     permissions:
       id-token: write
 
@@ -40,8 +40,10 @@ jobs:
           python -m pip install twine
           twine check dist/*
 
-      - name: Publish to PyPI
+      - name: Publish to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -49,11 +51,13 @@ jobs:
         with:
           files: dist/*
           body: |
-            # Kyromesh Python SDK Release
+            # Kyromesh Python SDK Release (TestPyPI)
 
-            Install: `pip install kyromesh`
+            Install from TestPyPI: `pip install -i https://test.pypi.org/simple/ kyromesh`
 
             ## Documentation
             - [Quick Start](https://docs.kyromesh.com/quickstart)
             - [Python SDK Reference](https://docs.kyromesh.com/sdk/python)
             - [REST API Reference](https://docs.kyromesh.com/api)
+
+            **Note**: This release is published to TestPyPI for testing purposes.
