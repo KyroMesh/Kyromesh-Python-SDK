@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kyromesh"
+name = "kyromesh-alpha"
 version = "0.1.0"
 description = "Python SDK for Kyromesh AI Runtime Infrastructure"
 readme = "README.md"
@@ -42,10 +42,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://kyromesh.com"
-Documentation = "https://docs.kyromesh.com"
-Repository = "https://github.com/kyromesh/kyromesh"
-Issues = "https://github.com/kyromesh/kyromesh/issues"
+Homepage = "https://dev.kyromesh.com"
+Documentation = "https://docs.dev.kyromesh.com"
+Repository = "https://github.com/kyromesh/Kyromesh-Python-SDK"
+Issues = "https://github.com/kyromesh/Kyromesh-Python-SDK/issues"
 
 [tool.setuptools]
 packages = ["kyromesh"]

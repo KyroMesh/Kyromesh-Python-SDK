@@ -30,7 +30,7 @@ class Kyromesh:
         >>> status = kyro.get_job_status(job.id)
     """
     
-    DEFAULT_BASE_URL = "https://api.kyromesh.com"
+    DEFAULT_BASE_URL = "https://api.dev.kyromesh.com"
     
     def __init__(
         self,
